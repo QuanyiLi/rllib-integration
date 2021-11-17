@@ -11,7 +11,7 @@ from rllib_integration.helper import join_dicts
 
 BASE_EXPERIMENT_CONFIG = {
     "hero": {
-        "blueprint": "vehicle.lincoln.mkz_2017",
+        "blueprint": "vehicle.audi.tt",
         "sensors": {  # Go to sensors/factory.py to check all the available sensors
             # "sensor_name1": {
             #     "type": blueprint,

@@ -32,7 +32,7 @@ EXPERIMENT_CLASS = DQNExperiment
 
 def run(args):
     try:
-        ray.init(address= "auto" if args.auto else None)
+        ray.init(address= "auto" if args.auto else None, local_mode=True if args.local_mode else False)
         tune.run(CustomDQNTrainer,
                  name=args.name,
                  local_dir=args.directory,
@@ -68,7 +68,7 @@ def main():
                            help="Configuration file (*.yaml)")
     argparser.add_argument("-d", "--directory",
                            metavar='D',
-                           default=os.path.expanduser("~") + "/ray_results/carla_rllib",
+                           default="./ray_results/carla_rllib",
                            help="Specified directory to save results (default: ~/ray_results/carla_rllib")
     argparser.add_argument("-n", "--name",
                            metavar="N",
@@ -90,6 +90,9 @@ def main():
                            action="store_true",
                            default=False,
                            help="Flag to use auto address")
+    argparser.add_argument("--local_mode",
+                           default=True,
+                           help="debug setting")
 
 
     args = argparser.parse_args()
@@ -103,7 +106,7 @@ def main():
 
 
 if __name__ == '__main__':
-
+    os.environ["CARLA_ROOT"]="/home/liquanyi/carla"
     try:
         main()
     except KeyboardInterrupt:

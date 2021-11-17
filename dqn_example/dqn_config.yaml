@@ -3,7 +3,7 @@
 framework: "torch"
 num_workers: 1
 num_gpus_per_worker: 1
-num_cpus_per_worker: 11
+num_cpus_per_worker: 1
 rollout_fragment_length: 16
 timesteps_per_iteration: 20000
 train_batch_size: 64
@@ -42,8 +42,8 @@ env_config:
     timeout: 30.0
     timestep: 0.05
     retries_on_error: 25
-    resolution_x: 600
-    resolution_y: 600
+    resolution_x: 1200
+    resolution_y: 800
     quality_level: "Low"
     enable_map_assets: True
     enable_rendering: True
@@ -51,11 +51,11 @@ env_config:
 
   experiment:
     hero:
-      blueprint: "vehicle.lincoln.mkz_2017"
+      blueprint: "vehicle.audi.tt"
       sensors:
         birdview:
           type: "sensor.birdview"
-          size: 300
+          size: 128
           radius: 15
       spawn_points: [
         "-130.80254883,103.26209961,1",  # x,y,z[,roll,pitch,yaw]
@@ -103,3 +103,5 @@ env_config:
       framestack: 4
       max_time_idle: 600
       max_time_episode: 6400
+      pixel_normalize: True
+      gray_scale: True

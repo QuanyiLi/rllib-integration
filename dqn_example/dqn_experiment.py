@@ -23,6 +23,8 @@ class DQNExperiment(BaseExperiment):
         self.frame_stack = self.config["others"]["framestack"]
         self.max_time_idle = self.config["others"]["max_time_idle"]
         self.max_time_episode = self.config["others"]["max_time_episode"]
+        self.gray_scale = self.config["others"]["gray_scale"]
+        self.pixel_normalize = self.config["others"]["pixel_normalize"]
         self.allowed_types = [carla.LaneType.Driving, carla.LaneType.Parking]
         self.last_heading_deviation = 0
         self.last_action = None
@@ -123,7 +125,7 @@ class DQNExperiment(BaseExperiment):
         as well as a variable with additional information about such observation.
         The information variable can be empty
         """
-        image = post_process_image(sensor_data['birdview'][1], normalized = False, grayscale = False)
+        image = post_process_image(sensor_data['birdview'][1], normalized = self.pixel_normalize, grayscale = self.gray_scale)
 
         if self.prev_image_0 is None:
             self.prev_image_0 = image
