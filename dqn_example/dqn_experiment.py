@@ -7,10 +7,10 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 import math
-import numpy as np
-from gym.spaces import Box, Discrete
 
 import carla
+import numpy as np
+from gym.spaces import Box, Discrete
 
 from rllib_integration.base_experiment import BaseExperiment
 from rllib_integration.helper import post_process_image
@@ -55,16 +55,16 @@ class DQNExperiment(BaseExperiment):
         return Discrete(len(self.get_actions()))
 
     def get_observation_space(self):
-        num_of_channels = 3
+        num_of_channels = 3 if not self.config["others"]["gray_scale"] else 1
         image_space = Box(
             low=0.0,
-            high=255.0,
+            high=255.0 if not self.config["others"]["pixel_normalize"] else 1.0,
             shape=(
                 self.config["hero"]["sensors"]["birdview"]["size"],
                 self.config["hero"]["sensors"]["birdview"]["size"],
                 num_of_channels * self.frame_stack,
             ),
-            dtype=np.uint8,
+            dtype=np.uint8 if not self.config["others"]["pixel_normalize"] else np.float32,
         )
         return image_space
 
@@ -125,7 +125,8 @@ class DQNExperiment(BaseExperiment):
         as well as a variable with additional information about such observation.
         The information variable can be empty
         """
-        image = post_process_image(sensor_data['birdview'][1], normalized = self.pixel_normalize, grayscale = self.gray_scale)
+        image = post_process_image(sensor_data['birdview'][1], normalized=self.pixel_normalize,
+                                   grayscale=self.gray_scale)
 
         if self.prev_image_0 is None:
             self.prev_image_0 = image
@@ -167,12 +168,16 @@ class DQNExperiment(BaseExperiment):
 
     def compute_reward(self, observation, core):
         """Computes the reward"""
+
         def unit_vector(vector):
             return vector / np.linalg.norm(vector)
+
         def compute_angle(u, v):
-            return -math.atan2(u[0]*v[1] - u[1]*v[0], u[0]*v[0] + u[1]*v[1])
+            return -math.atan2(u[0] * v[1] - u[1] * v[0], u[0] * v[0] + u[1] * v[1])
+
         def find_current_waypoint(map_, hero):
             return map_.get_waypoint(hero.get_location(), project_to_road=False, lane_type=carla.LaneType.Any)
+
         def inside_lane(waypoint, allowed_types):
             if waypoint is not None:
                 return waypoint.lane_type in allowed_types
@@ -194,7 +199,7 @@ class DQNExperiment(BaseExperiment):
 
         # Compute deltas
         delta_distance = float(np.sqrt(np.square(hero_location.x - self.last_location.x) + \
-                            np.square(hero_location.y - self.last_location.y)))
+                                       np.square(hero_location.y - self.last_location.y)))
         delta_velocity = hero_velocity - self.last_velocity
 
         # Update variables

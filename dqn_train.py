@@ -12,19 +12,17 @@ from __future__ import print_function
 
 import argparse
 import os
-import yaml
 
 import ray
+import yaml
 from ray import tune
 
-from rllib_integration.carla_env import CarlaEnv
-from rllib_integration.carla_core import kill_all_servers
-
-from rllib_integration.helper import get_checkpoint, launch_tensorboard
-
-from dqn_example.dqn_experiment import DQNExperiment
 from dqn_example.dqn_callbacks import DQNCallbacks
+from dqn_example.dqn_experiment import DQNExperiment
 from dqn_example.dqn_trainer import CustomDQNTrainer
+from rllib_integration.carla_core import kill_all_servers
+from rllib_integration.carla_env import CarlaEnv
+from rllib_integration.helper import get_checkpoint, launch_tensorboard
 
 # Set the experiment to EXPERIMENT_CLASS so that it is passed to the configuration
 EXPERIMENT_CLASS = DQNExperiment
@@ -32,7 +30,7 @@ EXPERIMENT_CLASS = DQNExperiment
 
 def run(args):
     try:
-        ray.init(address= "auto" if args.auto else None, local_mode=True if args.local_mode else False)
+        ray.init(address="auto" if args.auto else None, local_mode=True if args.local_mode else False, num_gpus=1)
         tune.run(CustomDQNTrainer,
                  name=args.name,
                  local_dir=args.directory,
@@ -91,9 +89,8 @@ def main():
                            default=False,
                            help="Flag to use auto address")
     argparser.add_argument("--local_mode",
-                           default=True,
+                           default=False,
                            help="debug setting")
-
 
     args = argparser.parse_args()
     args.config = parse_config(args)
@@ -106,7 +103,8 @@ def main():
 
 
 if __name__ == '__main__':
-    os.environ["CARLA_ROOT"]="/home/liquanyi/carla"
+    os.environ["CARLA_ROOT"] = "/home/liquanyi/carla"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     try:
         main()
     except KeyboardInterrupt:
