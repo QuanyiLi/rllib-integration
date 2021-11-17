@@ -18,7 +18,7 @@ from tensorboard import program
 
 def post_process_image(image, normalized=True, grayscale=True):
     """
-    Convert image to gray scale and normalize between -1 and 1 if required
+    Convert image to gray scale and normalize between 0 and 1 if required
     :param image:
     :param normalized:
     :param grayscale
@@ -31,7 +31,7 @@ def post_process_image(image, normalized=True, grayscale=True):
         image = image[:, :, np.newaxis]
 
     if normalized:
-        return (image.astype(np.float32) - 128) / 128
+        return (image.astype(np.float32) - 256) / 256
     else:
         return image.astype(np.uint8)
 
