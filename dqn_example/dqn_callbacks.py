@@ -14,16 +14,22 @@ from ray.rllib.agents.callbacks import DefaultCallbacks
 class DQNCallbacks(DefaultCallbacks):
     def on_episode_start(self, worker, base_env, policies, episode, **kwargs):
         episode.user_data["heading_deviation"] = []
+        episode.user_data["velocity"] = []
 
     def on_episode_step(self, worker, base_env, episode, **kwargs):
+        velocity = worker.env.experiment.last_velocity
         heading_deviation = worker.env.experiment.last_heading_deviation
         if heading_deviation > 0:
             episode.user_data["heading_deviation"].append(heading_deviation)
+            episode.user_data["velocity"].append(velocity)
 
     def on_episode_end(self, worker, base_env, policies, episode, **kwargs):
         heading_deviation = episode.user_data["heading_deviation"]
         if len(heading_deviation) > 0:
             heading_deviation = np.mean(episode.user_data["heading_deviation"])
+            velocity = np.mean(episode.user_data["velocity"])
         else:
             heading_deviation = 0
+            velocity = 0
         episode.custom_metrics["heading_deviation"] = heading_deviation
+        episode.custom_metrics["velocity"] = velocity
